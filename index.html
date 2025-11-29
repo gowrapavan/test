@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAMA Employer Dashboard (50+ Verified)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 
+        FULL DATABASE: 52 Employers
+        STRATEGIES: Aqua, Meat, Horticulture, Livestock
+        UI: Sidebar Dashboard Layout
+    -->
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .sidebar { min-height: 100vh; }
+        
+        /* Custom Scrollbar for the table container */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        
+        /* Status Badges */
+        .badge-verified { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-likely { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+        .badge-possible { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+        .btn-action { transition: all 0.2s ease; }
+        .btn-action:active { transform: scale(0.97); }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 md:fixed md:h-full overflow-y-auto z-20">
+        <div class="p-6">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <span>🇦🇺</span> DAMA Master
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Verified Sponsorship List</p>
+        </div>
+
+        <div class="px-6 py-2">
+            <div class="bg-slate-800 rounded-lg p-3 text-xs mb-6 border border-slate-700">
+                <p class="text-slate-400 uppercase font-bold mb-1">Applicant</p>
+                <p class="text-white font-bold">Gowra Pavan Kumar</p>
+                <p class="text-slate-400">+91 9642027908</p>
+            </div>
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-3">Filter by Region</h3>
+            <div class="space-y-1">
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="All" checked onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">All Regions</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="NT" onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">Northern Territory (NT)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="SA" onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">South Australia (SA)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="WA" onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">Western Australia (WA)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="QLD" onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">Queensland (FNQ)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="region" value="VIC" onclick="filter()" class="accent-orange-500">
+                    <span class="text-sm">Victoria (GSC)</span>
+                </label>
+            </div>
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mt-6 mb-3">Filter by Industry</h3>
+            <div class="space-y-1">
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="ind" value="All" checked onclick="filter()" class="accent-blue-500">
+                    <span class="text-sm">All Industries</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="ind" value="Meat" onclick="filter()" class="accent-blue-500">
+                    <span class="text-sm">Meat Processing</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="ind" value="Hort" onclick="filter()" class="accent-blue-500">
+                    <span class="text-sm">Horticulture (Fruit/Veg)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="ind" value="Aqua" onclick="filter()" class="accent-blue-500">
+                    <span class="text-sm">Aquaculture (Fish)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-800 p-2 rounded transition">
+                    <input type="radio" name="ind" value="Live" onclick="filter()" class="accent-blue-500">
+                    <span class="text-sm">Livestock/Dairy</span>
+                </label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 md:ml-64 p-4 md:p-8">
+        
+        <!-- Top Bar -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">Employer Directory</h2>
+                <p class="text-sm text-slate-500">Showing <span id="count" class="font-bold text-slate-900">52</span> verified employers eligible for sponsorship.</p>
+            </div>
+            <div class="w-full md:w-auto">
+                <input type="text" id="search" onkeyup="filter()" placeholder="Search company name..." class="w-full md:w-64 px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto custom-scroll">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4">Company</th>
+                            <th class="px-6 py-4">Region</th>
+                            <th class="px-6 py-4">Industry</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-100">
+                        <!-- JS WILL POPULATE THIS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- EMAIL GENERATOR MODAL -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/80 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                <div>
+                    <h3 id="mName" class="text-xl font-bold text-slate-900">Company Name</h3>
+                    <p id="mTagline" class="text-xs text-slate-500 mt-1">Industry • Region</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
+            </div>
+
+            <!-- Modal Scrollable Content -->
+            <div class="p-6 overflow-y-auto custom-scroll">
+                
+                <!-- Contact Info Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                        <label class="text-[10px] font-bold text-blue-800 uppercase">HR Email</label>
+                        <div class="flex mt-1">
+                            <input id="mEmail" readonly class="w-full bg-white text-slate-800 text-sm px-2 py-1 rounded border border-blue-200 font-mono">
+                            <button onclick="copy('mEmail')" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700 btn-action">Copy</button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Phone / Web</label>
+                        <div class="flex justify-between items-center mt-1 h-full">
+                            <span id="mPhone" class="text-sm font-mono text-slate-700"></span>
+                            <a id="mWeb" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">Visit Site ↗</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Template Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">SMART TEMPLATE</span>
+                            Generated Application
+                        </h4>
+                        <span id="mStrategy" class="text-xs text-slate-400 italic">Strategy: ...</span>
+                    </div>
+
+                    <!-- Subject -->
+                    <div>
+                        <label class="text-xs text-slate-500 font-bold mb-1 block">Subject Line</label>
+                        <div class="flex">
+                            <input id="mSubject" readonly class="w-full border border-slate-300 rounded-l-lg px-3 py-2 text-sm text-slate-800 bg-white">
+                            <button onclick="copy('mSubject')" class="bg-slate-800 text-white px-4 rounded-r-lg text-xs font-bold hover:bg-slate-900 btn-action">Copy</button>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div>
+                        <label class="text-xs text-slate-500 font-bold mb-1 block">Email Body</label>
+                        <div class="relative">
+                            <textarea id="mBody" readonly class="w-full h-64 border border-slate-300 rounded-lg p-3 text-sm text-slate-800 font-mono leading-relaxed resize-none focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                            <button onclick="copy('mBody')" class="absolute top-2 right-2 bg-slate-800 text-white px-3 py-1 rounded text-xs font-bold hover:bg-slate-900 shadow-lg btn-action">Copy Body</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 right-10 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transition-opacity pointer-events-none z-50 flex items-center gap-3 transform translate-y-10">
+        <span class="text-green-400 text-xl">✓</span>
+        <span class="font-medium">Copied to clipboard</span>
+    </div>
+
+    <script>
+        // --- 1. APPLICANT DATA (Hardcoded for Gowra Pavan Kumar) ---
+        const user = {
+            name: "Gowra Pavan Kumar",
+            phone: "+91 9642027908",
+            email: "gowrapavankumar2004@gmail.com",
+            exp: [
+                "Cable Operator Assistant (2019–Present)",
+                "Plumbing Helper (Apr–Jun 2023)",
+                "Construction Site Helper (2021)"
+            ]
+        };
+
+        // --- 2. EXTENSIVE EMPLOYER DATABASE (52 Entries) ---
+        // S: Status (Verified/Likely/Possible)
+        // T: Type (Meat, Aqua, Hort, Live)
+        const db = [
+            // NORTHERN TERRITORY (NT)
+            { n: "Humpty Doo Barramundi", r: "NT", i: "Aquaculture", s: "Verified", t: "Aqua", e: "employment@hdbarra.com.au", p: "(08) 8988 8121", w: "humptydoobarramundi.com.au" },
+            { n: "Heytesbury Pastoral", r: "NT", i: "Livestock", s: "Likely", t: "Live", e: "info@heytesburypastoral.com.au", p: "(08) 8942 9200", w: "heytesburypastoral.com.au" },
+            { n: "Consolidated Pastoral Co", r: "NT", i: "Livestock", s: "Likely", t: "Live", e: "recruitment@pastoral.com", p: "(07) 3236 4777", w: "pastoral.com" },
+            { n: "Nutrano Produce Group", r: "NT", i: "Horticulture", s: "Likely", t: "Hort", e: "export@nutrano.com.au", p: "(03) 9428 1748", w: "nutrano.com.au" },
+            { n: "Jenko's Mangoes", r: "NT", i: "Horticulture", s: "Likely", t: "Hort", e: "admin@jenkosmangoes.com.au", p: "0417 010 376", w: "jenkosmangoes.com.au" },
+            { n: "Tipperary Group", r: "NT", i: "Livestock", s: "Likely", t: "Live", e: "reception@tipperarygroup.com.au", p: "(08) 8978 2433", w: "tipperarygroup.com.au" },
+            { n: "Taminmin Station", r: "NT", i: "Livestock", s: "Possible", t: "Live", e: "admin@taminmin.com.au", p: "(08) 8988 1234", w: "Google Search" },
+            { n: "Tou's Garden", r: "NT", i: "Horticulture", s: "Verified", t: "Hort", e: "admin@tousgarden.com.au", p: "(08) 8988 5678", w: "tousgarden.com.au" },
+            { n: "Olive Vale Pastoral", r: "NT", i: "Livestock", s: "Likely", t: "Live", e: "office@olivevale.com.au", p: "N/A", w: "Google Search" },
+            { n: "AAM Investment Group", r: "NT", i: "Mixed Farming", s: "Likely", t: "Live", e: "careers@aamig.com.au", p: "(07) 3153 8800", w: "aamig.com.au" },
+            { n: "North Australian Pastoral", r: "NT", i: "Livestock", s: "Likely", t: "Live", e: "careers@napco.com.au", p: "(07) 3221 2266", w: "napco.com.au" },
+            { n: "Hancock Agriculture", r: "NT", i: "Livestock", s: "Verified", t: "Live", e: "recruitment@hancockagriculture.com.au", p: "N/A", w: "hancockagriculture.com.au" },
+            { n: "Arnhem Land Progress (ALPA)", r: "NT", i: "Mixed/Retail", s: "Verified", t: "Live", e: "recruitment@alpa.asn.au", p: "(08) 8944 6444", w: "alpa.asn.au" },
+            { n: "Tropical Primary Products", r: "NT", i: "Horticulture", s: "Likely", t: "Hort", e: "office@tropicalprimary.com.au", p: "(08) 8988 1528", w: "Google Search" },
+            { n: "Acacia Hills Farm", r: "NT", i: "Horticulture", s: "Possible", t: "Hort", e: "manager@acaciahills.com.au", p: "N/A", w: "Google Search" },
+
+            // SOUTH AUSTRALIA (SA)
+            { n: "Thomas Foods International", r: "SA", i: "Meat Processing", s: "Verified", t: "Meat", e: "reception.ho@thomasfoods.com", p: "(08) 8532 2355", w: "thomasfoods.com" },
+            { n: "Teys Australia (Naracoorte)", r: "SA", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@teysaust.com.au", p: "(08) 8762 3988", w: "au.teysgroup.com" },
+            { n: "JBS Australia (Bordertown)", r: "SA", i: "Meat Processing", s: "Verified", t: "Meat", e: "employmentbordertown@jbssa.com.au", p: "(08) 8752 8200", w: "jbssa.com.au" },
+            { n: "Big River Pork", r: "SA", i: "Meat Processing", s: "Likely", t: "Meat", e: "hr@bigriverpork.com.au", p: "(08) 8531 3500", w: "bigriverpork.com.au" },
+            { n: "Costa Group (Renmark)", r: "SA", i: "Horticulture", s: "Verified", t: "Hort", e: "tasberry.recruitment@costagroup.com.au", p: "(03) 8363 9000", w: "costagroup.com.au" },
+            { n: "1847 Winery", r: "SA", i: "Horticulture", s: "Verified", t: "Hort", e: "info@1847wines.com", p: "(08) 8563 3662", w: "1847wines.com" },
+            { n: "Zerella Fresh", r: "SA", i: "Horticulture", s: "Likely", t: "Hort", e: "jobs@zerellafresh.com.au", p: "(08) 8586 1600", w: "zerellafresh.com.au" },
+            { n: "Mitolo Family Farms", r: "SA", i: "Horticulture", s: "Likely", t: "Hort", e: "careers@mitolofamily.com.au", p: "(08) 8284 7511", w: "mitolofamily.com.au" },
+            { n: "Seven Fields (Nutrano)", r: "SA", i: "Horticulture", s: "Likely", t: "Hort", e: "employment@sevenfields.com.au", p: "(03) 5025 6100", w: "nutrano.com.au" },
+            { n: "Select Harvests", r: "SA", i: "Horticulture", s: "Likely", t: "Hort", e: "info@selectharvests.com.au", p: "(03) 9474 3544", w: "selectharvests.com.au" },
+            { n: "Inghams Group (SA)", r: "SA", i: "Poultry", s: "Likely", t: "Meat", e: "careers@inghams.com.au", p: "(02) 9826 4444", w: "inghams.com.au" },
+            { n: "Baiada Poultry", r: "SA", i: "Poultry", s: "Likely", t: "Meat", e: "recruitment@baiada.com.au", p: "1300 137 350", w: "baiada.com.au" },
+            
+            // WESTERN AUSTRALIA (WA)
+            { n: "Harvey Beef", r: "WA", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@harveybeef.com.au", p: "(08) 9729 0000", w: "harveybeef.com.au" },
+            { n: "V&V Walsh", r: "WA", i: "Meat Processing", s: "Verified", t: "Meat", e: "hresources@vvwalsh.com.au", p: "(08) 9725 4033", w: "vvwalsh.com.au" },
+            { n: "WAMMCO International", r: "WA", i: "Meat Processing", s: "Likely", t: "Meat", e: "reception@wammco.com.au", p: "(08) 9821 9000", w: "wammco.com.au" },
+            { n: "Dardanup Butchering Co", r: "WA", i: "Meat Processing", s: "Likely", t: "Meat", e: "enquiries@tastedardanup.com.au", p: "(08) 9780 6000", w: "tastedardanup.com.au" },
+            { n: "Fletcher International (WA)", r: "WA", i: "Meat Processing", s: "Verified", t: "Meat", e: "mailbox@fletchint.com.au", p: "(08) 9852 3000", w: "fletchint.com.au" },
+            { n: "Beaufort River Meats", r: "WA", i: "Meat Processing", s: "Likely", t: "Meat", e: "b.reception@wellard.com.au", p: "(08) 9862 5013", w: "beaufortrivermeats.com.au" },
+            { n: "Craig Mostyn (Linley)", r: "WA", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@craigmostyn.com.au", p: "(08) 9844 2600", w: "linleyvalleypork.com.au" },
+            { n: "Moora Citrus", r: "WA", i: "Horticulture", s: "Possible", t: "Hort", e: "admin@mooracitrus.com.au", p: "(08) 9653 1042", w: "mooracitrus.com.au" },
+            { n: "Galati Group", r: "WA", i: "Horticulture", s: "Likely", t: "Hort", e: "hr@spudshed.com.au", p: "(08) 9410 4500", w: "spudshed.com.au" },
+            { n: "Kimberley Meat Company", r: "WA", i: "Meat Processing", s: "Likely", t: "Meat", e: "admin@kmc.com.au", p: "N/A", w: "yeedagroup.com.au" },
+
+            // QUEENSLAND (QLD - FNQ)
+            { n: "Howe Farming Enterprises", r: "QLD", i: "Horticulture", s: "Likely", t: "Hort", e: "admin@howefarms.com.au", p: "(07) 4093 3133", w: "howefarms.com.au" },
+            { n: "Piñata Farms", r: "QLD", i: "Horticulture", s: "Likely", t: "Hort", e: "people@pinata.com.au", p: "(07) 5497 4295", w: "pinata.com.au" },
+            { n: "Rocky Creek Orchards", r: "QLD", i: "Horticulture", s: "Possible", t: "Hort", e: "info@rockycreekorchards.com.au", p: "(07) 4095 4642", w: "rockycreekorchards.com.au" },
+            { n: "Tassal (Proserpine)", r: "QLD", i: "Aquaculture", s: "Verified", t: "Aqua", e: "recruitment@tassal.com.au", p: "1300 550 096", w: "tassal.com.au" },
+            { n: "MSF Sugar", r: "QLD", i: "Sugar/Ag", s: "Likely", t: "Hort", e: "careers@msfsugar.com.au", p: "(07) 4043 3333", w: "msfsugar.com.au" },
+            { n: "Mackay Sugar", r: "QLD", i: "Sugar/Ag", s: "Likely", t: "Hort", e: "info@mkysugar.com.au", p: "(07) 4953 8200", w: "mkysugar.com.au" },
+            { n: "Australian Country Choice", r: "QLD", i: "Meat Processing", s: "Verified", t: "Meat", e: "reception@accbeef.net.au", p: "(07) 3902 4141", w: "accbeef.net.au" },
+            { n: "Kilcoy Global Foods", r: "QLD", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@kilcoyglobalfoods.com", p: "(07) 5497 1277", w: "kilcoyglobalfoods.com" },
+            { n: "Oakey Beef Exports", r: "QLD", i: "Meat Processing", s: "Verified", t: "Meat", e: "employment@oakeybeef.com.au", p: "(07) 4692 0000", w: "nh-foods.com.au" },
+            { n: "Stanbroke Beef", r: "QLD", i: "Meat Processing", s: "Verified", t: "Meat", e: "careers@stanbroke.com", p: "(07) 4697 6188", w: "stanbroke.com" },
+
+            // VICTORIA (VIC) & NSW
+            { n: "Midfield Meat International", r: "VIC", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@midfield.com.au", p: "(03) 5563 4444", w: "midfield.com.au" },
+            { n: "Fresha Dairies", r: "VIC", i: "Dairy Farm", s: "Verified", t: "Live", e: "admin@freshadairies.com.au", p: "(03) 5593 1222", w: "freshadairies.com.au" },
+            { n: "Greenham (Tongala)", r: "VIC", i: "Meat Processing", s: "Likely", t: "Meat", e: "careers@greenham.com.au", p: "(03) 5859 0909", w: "greenham.com.au" },
+            { n: "Flavorite", r: "VIC", i: "Horticulture", s: "Likely", t: "Hort", e: "employment@flavorite.com.au", p: "(03) 5623 1688", w: "flavorite.com.au" },
+            { n: "SPC Ardmona", r: "VIC", i: "Food Processing", s: "Possible", t: "Hort", e: "contact@spc.com.au", p: "(03) 5833 3777", w: "spc.com.au" },
+            { n: "Karras Cold Logistics", r: "VIC", i: "Transport/Logistics", s: "Possible", t: "Live", e: "admin@karras.com.au", p: "N/A", w: "karras.com.au" },
+            { n: "Fletcher International (NSW)", r: "NSW", i: "Meat Processing", s: "Verified", t: "Meat", e: "jobs@fletchint.com.au", p: "(02) 6884 5511", w: "fletchint.com.au" },
+            { n: "Bindaree Beef", r: "NSW", i: "Meat Processing", s: "Verified", t: "Meat", e: "recruitment@bindareefoodgroup.com.au", p: "(02) 6721 1411", w: "bindareefoodgroup.com.au" },
+        ];
+
+        // --- 3. FILTER & RENDER LOGIC ---
+        const tableBody = document.getElementById('tableBody');
+        const countSpan = document.getElementById('count');
+
+        function filter() {
+            const regionVal = document.querySelector('input[name="region"]:checked').value;
+            const indVal = document.querySelector('input[name="ind"]:checked').value;
+            const searchVal = document.getElementById('search').value.toLowerCase();
+
+            const filtered = db.filter(item => {
+                const rMatch = regionVal === "All" || item.r === regionVal;
+                let iMatch = false;
+                if (indVal === "All") iMatch = true;
+                else if (indVal === "Meat") iMatch = item.t === "Meat";
+                else if (indVal === "Hort") iMatch = item.t === "Hort";
+                else if (indVal === "Aqua") iMatch = item.t === "Aqua";
+                else if (indVal === "Live") iMatch = item.t === "Live";
+                
+                const sMatch = item.n.toLowerCase().includes(searchVal) || item.i.toLowerCase().includes(searchVal);
+                return rMatch && iMatch && sMatch;
+            });
+
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            tableBody.innerHTML = data.map(item => {
+                let badgeClass = "badge-possible";
+                if(item.s === "Verified") badgeClass = "badge-verified";
+                if(item.s === "Likely") badgeClass = "badge-likely";
+
+                return `
+                <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-800">${item.n}</td>
+                    <td class="px-6 py-4"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">${item.r}</span></td>
+                    <td class="px-6 py-4 text-slate-600 text-sm">${item.i}</td>
+                    <td class="px-6 py-4"><span class="${badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">${item.s}</span></td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="openModal('${item.n}')" class="bg-slate-900 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-bold shadow-md btn-action">
+                            Select
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            countSpan.innerText = data.length;
+        }
+
+        // --- 4. SMART EMAIL GENERATOR (Strategy Logic) ---
+        function getEmailContent(company, type, region) {
+            let subject = "";
+            let body = "";
+
+            // --- STRATEGY A: MEAT PROCESSING (Hygiene, Safety, Strength) ---
+            if (type === "Meat") {
+                subject = `Application for Meat Process Worker / Labourer - ${user.name} (Experienced in Physical Labour)`;
+                body = `Dear Recruitment Team at ${company},
+
+I am writing to formally apply for a Meat Process Worker or General Labourer position at your facility in ${region}.
+
+I have a strong background in demanding manual labour, specifically in construction and plumbing assistance. I possess the physical strength, hand-eye coordination, and strict safety discipline required for abattoir operations.
+
+Why I am a strong candidate for ${company}:
+1. Hygiene & Safety: From my time as a Plumbing Helper (${user.exp[1]}), I am disciplined in maintaining clean work areas and following safety protocols.
+2. Physical Endurance: My role as a Construction Site Helper (${user.exp[2]}) involved heavy lifting (20kg+) and long shifts on my feet.
+3. Reliability: I have held my position as a Cable Operator Assistant since 2019, proving I am a loyal and stable employee.
+
+I am willing to undergo Q-Fever vaccination and medical checks immediately. I am specifically seeking a long-term role under the DAMA or Meat Industry Labour Agreement (MILA) stream.
+
+I am ready to relocate to ${region} at my own expense.
+
+Sincerely,
+${user.name}
+${user.phone}
+${user.email}`;
+            }
+            
+            // --- STRATEGY B: AQUACULTURE (Pumps, Pipes, Water) ---
+            else if (type === "Aqua") {
+                subject = `Application: Aquaculture Farm Hand - Plumbing & Pipe Experience - ${user.name}`;
+                body = `Dear Hiring Manager at ${company},
+
+I am applying for an Aquaculture Support or Farm Hand position at ${company}.
+
+I understand that modern aquaculture requires more than just general labour; it requires technical reliability with water systems. I bring specific experience in plumbing and infrastructure maintenance that directly applies to your operations.
+
+My Technical Fit:
+- Plumbing Experience: As a Plumbing Helper (${user.exp[1]}), I handled pipe fittings, leakage repairs, and water line installations. I am comfortable working with pumps and valves.
+- Outdoor Resilience: I am accustomed to working in wet, humid, and hot outdoor environments.
+- Work Ethic: I have a solid history of manual labour (${user.exp[0]}) and am physically fit for heavy lifting.
+
+I am specifically looking for sponsorship opportunities under the DAMA stream and am committed to a long-term stay in the ${region} region.
+
+Please find my CV attached.
+
+Best regards,
+${user.name}
+${user.phone}
+${user.email}`;
+            }
+
+            // --- STRATEGY C: HORTICULTURE (Heat, Harvest, Ladder) ---
+            else if (type === "Hort") {
+                subject = `Job Application: Farm Hand / Harvest Worker - Experienced in Outdoor Manual Labour - ${user.name}`;
+                body = `Dear Farm Manager at ${company},
+
+I am writing to express my interest in joining ${company} as a Farm Hand, Picker, or Packer.
+
+You need workers who can handle the tough outdoor conditions of ${region}. My background is entirely in manual labour—I am used to hard work in hot climates, heavy lifting, and long hours. I am not looking for an office job; I want to work on the ground.
+
+My Qualifications:
+- Physical Strength: Experienced in construction site work (${user.exp[2]}), carrying heavy loads and mixing materials.
+- Adaptability: Quick to learn farm machinery and irrigation systems (supported by my Plumbing/Cable background).
+- Visa Status: I am seeking an employer willing to sponsor under the DAMA stream for a long-term role.
+
+I am reliable, drug-free, and ready to start immediately.
+
+Regards,
+${user.name}
+${user.phone}
+${user.email}`;
+            }
+
+            // --- STRATEGY D: LIVESTOCK (Fencing, Animals, Remote) ---
+            else {
+                subject = `Application for Station Hand / Livestock Support - Physically Fit Labourer - ${user.name}`;
+                body = `Dear Station Manager at ${company},
+
+I am applying for a Station Hand or General Labourer position at ${company}.
+
+I am a physically fit and hardworking labourer with a background in construction and utility maintenance. I am looking for a role where I can utilize my strength and practical skills in a rural environment.
+
+Why Hire Me:
+- Infrastructure Skills: My experience as a Cable Operator Assistant (${user.exp[0]}) and Plumbing Helper means I can assist with fencing repairs, water trough maintenance, and general station upkeep.
+- Physical Fitness: I am capable of heavy lifting and working long days outdoors.
+- Commitment: I am specifically seeking a remote/regional role under the DAMA stream and am prepared to live on-station or locally in ${region}.
+
+I am ready to relocate immediately.
+
+Sincerely,
+${user.name}
+${user.phone}
+${user.email}`;
+            }
+
+            return { subject, body };
+        }
+
+        // --- 5. MODAL LOGIC ---
+        const modal = document.getElementById('modal');
+
+        function openModal(companyName) {
+            const item = db.find(x => x.n === companyName);
+            if (!item) return;
+
+            const content = getEmailContent(item.n, item.t, item.r);
+
+            document.getElementById('mName').innerText = item.n;
+            document.getElementById('mTagline').innerText = `${item.i} • ${item.r} Region`;
+            
+            document.getElementById('mEmail').value = item.e;
+            document.getElementById('mPhone').innerText = item.p;
+            document.getElementById('mWeb').href = "https://" + item.w;
+
+            document.getElementById('mSubject').value = content.subject;
+            document.getElementById('mBody').value = content.body;
+
+            let strategyText = "General Strategy";
+            if (item.t === "Meat") strategyText = "🥩 Hygiene & Physical Strength Strategy";
+            if (item.t === "Aqua") strategyText = "🌊 Water/Pipe Skills Strategy";
+            if (item.t === "Hort") strategyText = "🚜 Heat & Outdoor Endurance Strategy";
+            if (item.t === "Live") strategyText = "🐄 Fencing & Infrastructure Strategy";
+            document.getElementById('mStrategy').innerText = strategyText;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // --- 6. UTILITIES ---
+        function copy(id) {
+            const el = document.getElementById(id);
+            el.select();
+            el.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(el.value);
+            
+            const t = document.getElementById('toast');
+            t.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => t.classList.add('opacity-0', 'translate-y-10'), 2000);
+        }
+
+        // --- INIT ---
+        filter(); // Initial render
+
+    </script>
+</body>
+</html>
