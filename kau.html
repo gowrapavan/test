@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Assessment Summary</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styling for the table container */
+        .scroll-x::-webkit-scrollbar {
+            height: 8px;
+        }
+        .scroll-x::-webkit-scrollbar-thumb {
+            background-color: #9ca3af; /* gray-400 */
+            border-radius: 4px;
+        }
+        .scroll-x::-webkit-scrollbar-track {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        /* Style for the expandable rationale rows */
+        .rationale-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+        }
+        .rationale-content.show {
+            max-height: 200px; /* Arbitrary max height to allow transition */
+            opacity: 1;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 p-6 bg-white shadow-xl rounded-xl">
+            <h1 class="text-3xl font-extrabold text-blue-800 mb-2">Assessment Data Comprehensive Summary</h1>
+            <p class="text-gray-600">Review, filter, and analyze the compiled questions and correct answers.</p>
+        </header>
+
+        <!-- Data Container -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-xl">
+
+            <!-- Controls -->
+            <div class="mb-6 flex flex-col sm:flex-row gap-4 justify-between">
+                <!-- Search Input -->
+                <div class="relative sm:w-1/2">
+                    <input type="text" id="search-input" placeholder="Search by Question or Rationale..."
+                           class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150">
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+
+                <!-- Domain Filter -->
+                <div class="sm:w-1/4">
+                    <select id="domain-filter" class="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 transition duration-150">
+                        <option value="All">Filter by Domain (All)</option>
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="scroll-x overflow-x-auto rounded-lg shadow-inner">
+                <table id="assessment-table" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-blue-600 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-16">No.</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-24">Domain</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-1/3">Question Text</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-1/4">Correct Answer</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-20">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="bg-white divide-y divide-gray-100">
+                        <!-- Table rows populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="no-results" class="text-center text-gray-500 p-8 hidden">No results found matching your criteria.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STRUCTURE (JSON representation of the compiled table) ---
+        const assessmentData = [
+            { id: 7, domain: "Mathematics", question: "Solve for $x$: $\\log_2(x) + \\log_2(x - 2) = 3$.", answer: "4", rationale: "Use the log product rule: $\\log_2(x(x-2)) = 3$. Convert to exponential form: $x^2 - 2x = 8 \\implies x^2 - 2x - 8 = 0$. The roots are $x=4$ and $x=-2$. Only $x=4$ is valid because the domain requires $x>2$." },
+            { id: 10, domain: "Mathematics", question: "Given $x^2 + y^2 = 50$ and $(x - y)^2 = 18$, what is the value of $2xy$?", answer: "32", rationale: "Expand: $(x - y)^2 = x^2 + y^2 - 2xy$. Substitute values: $18 = 50 - 2xy$. $2xy = 50 - 18 = 32$." },
+            { id: 11, domain: "Professional Skills", question: "During a meeting, a colleague presents a plan you think has major flaws. How do you respond to address the issues without causing conflict?", answer: "Politely point out specific concerns and offer alternative solutions.", rationale: "This is **constructive criticism**; it addresses the issue directly but focuses on **problem-solving** (alternatives) respectfully." },
+            { id: 12, domain: "Professional Skills", question: "You receive feedback that your team communication is inconsistent. What steps do you take to improve it?", answer: "Set up regular briefings and clear documentation standards for the team.", rationale: "**Formal structure** (briefings) and **standardization** (documentation) are the most direct ways to ensure consistent and reliable information flow." },
+            { id: 13, domain: "Professional Skills", question: "A colleague is clearly upset after receiving critical feedback from your manager. How do you respond to support them?", answer: "Listen to their concerns and offer to help improve the work.", rationale: "This approach provides immediate **empathy** (listening) and transitions into **practical support**, guiding the colleague toward a constructive resolution." },
+            { id: 14, domain: "Professional Skills", question: "A junior colleague asks for guidance on handling a difficult task. What is the most helpful approach?", answer: "Explain the steps clearly and offer to review their work.", rationale: "This provides necessary **structure** and a safety net while still encouraging the colleague to **build independence** by completing the task themselves." },
+            { id: 15, domain: "Professional Skills", question: "You have multiple high-priority tasks due at the same time with limited resources. How do you prioritize and proceed? (Select all correct answers)", answer: "Take on the most critical tasks first and ask for help where needed. / Stay composed under pressure and adapt as situations change. / Create a clear schedule and stick to it to ensure timely delivery.", rationale: "These actions cover the essentials: **prioritization**, **mental resilience**, and **time management**." },
+            { id: 16, domain: "Professional Skills", question: "A teammate seems unusually quiet and has missed recent check-ins. What would you do to address the situation?", answer: "Privately reach out to offer support and ask if they need help.", rationale: "**Confidential, one-on-one communication** is the most empathetic and effective way to address potential personal or professional struggles." },
+            { id: 17, domain: "Professional Skills", question: "Two team members are in conflict over how to approach a shared task. What is the most constructive role you can take? (Select all correct answers)", answer: "Listen to both sides and help them find common ground. / Propose a compromise that leverages each person's strengths. / Document each position and recommend a trial approach.", rationale: "A constructive mediator must understand the positions, propose a working solution, and implement a concrete, measurable path forward." },
+            { id: 18, domain: "Professional Skills", question: "You receive **conflicting feedback from two managers**. Which actions would you take to resolve the situation? (Select all that apply)", answer: "Schedule a meeting with both managers to clarify expectations. / Find a compromise approach that incorporates both perspectives. / Propose alternative solutions and ask which they prefer.", rationale: "Resolution requires **direct alignment** (meeting) and proposing **integrated solutions** (compromise/alternatives) to gain a clear path forward." },
+            { id: 19, domain: "Professional Skills", question: "You need to **innovate a product feature with limited resources**. How would you proceed?", answer: "Build a quick prototype to test assumptions.", rationale: "The most efficient use of limited resources is to conduct a **Lean/Agile test** (prototype) to validate the core idea and learn quickly before committing significant budget." },
+            { id: 21, domain: "Microbiology", question: "Which change in a food matrix most directly **lowers microbial growth by reducing available free water**?", answer: "Reduce water activity ($a_w$) by adding salt or sugar", rationale: "Adding salt or sugar binds the **free water**, lowering the **water activity ($a_w$)**, which is the principle of preservation for curing and jams." },
+            { id: 22, domain: "Microbiology", question: "Which of the following is a primary goal of **HACCP** in food production?", answer: "Identify and control critical points to prevent food safety hazards", rationale: "**HACCP (Hazard Analysis and Critical Control Points)** is a systematic preventative approach that identifies hazards and implements controls at critical stages to ensure safety." },
+            { id: 23, domain: "Microbiology", question: "What is the primary microbiological purpose of **pasteurization of milk**?", answer: "Destroy pathogenic and most spoilage microorganisms without sterilizing.", rationale: "Pasteurization kills all harmful **pathogens** and significantly reduces **spoilage microbes** to ensure safety and extend shelf life, but it **does not sterilize**." },
+            { id: 24, domain: "Microbiology", question: "In a food processing plant, what does **CIP** stand for and what is its purpose?", answer: "Clean-In-Place: automated cleaning of equipment without disassembly", rationale: "**CIP** is the automated process of cleaning the interior surfaces of production equipment without disassembly, critical for hygiene." },
+            { id: 25, domain: "Microbiology", question: "Which practice is essential when preparing a **calibration curve** for an analytical assay in the QC lab?", answer: "Use at least three calibration standards spanning the expected range", rationale: "A calibration curve must accurately model the instrument's response across the full range of concentrations, requiring a sufficient number of standards (three or more)." },
+            { id: 26, domain: "Nutrition", question: "Which macronutrient provides approximately **9 kcal per gram**?", answer: "Fat", rationale: "Fat provides the highest caloric density among the macronutrients ($\\approx 9 \\text{ kcal/g}$). Carbohydrates and protein provide $\\approx 4 \\text{ kcal/g}$." },
+            { id: 27, domain: "Microbiology", question: "What is the primary reason for using **aseptic technique** in a microbiology lab?", answer: "To prevent contamination of cultures and samples.", rationale: "Aseptic technique is the set of practices used to maintain a **sterile work area**, ensuring that only the target organism is grown and studied." },
+            { id: 28, domain: "Microbiology", question: "Which element is essential to include in a **Standard Operating Procedure (SOP)** for a QC assay?", answer: "Step-by-step method, acceptance criteria, and record-keeping instructions", rationale: "An SOP must contain the precise method, the pass/fail conditions (**acceptance criteria**), and instructions for documenting the results (**record-keeping**) to ensure reproducibility and compliance." },
+            { id: 29, domain: "Microbiology", question: "Which personal protective equipment (PPE) is most appropriate when handling **concentrated food-grade acids** in the QC lab?", answer: "Gloves, goggles, lab coat, and face shield as needed", rationale: "Handling concentrated acids requires full protection for the eyes, skin, and body, with a **face shield** being crucial for splash hazards." },
+            { id: 30, domain: "Microbiology", question: "Which factor most directly influences **microbial shelf life** in a packaged food product?", answer: "Water activity and intrinsic pH of the product.", rationale: "**Water activity ($a_w$)** and **pH** are the two most critical intrinsic properties of a food product that determine whether microorganisms can grow and cause spoilage." },
+            { id: 31, domain: "Microbiology", question: "Which of the following are commonly used **non-thermal or thermal methods** to reduce microbial load in foods? (Select all correct answers)", answer: "Pasteurization (thermal) / Irradiation (ionizing radiation) / High-pressure processing (HPP)", rationale: "These three methods are all established industrial processes for killing or reducing microbial populations to ensure food safety and shelf life." },
+            { id: 33, domain: "Microbiology", question: "Which of the following are appropriate **biosafety practices** in a microbiology/QC lab? (Select all correct answers)", answer: "Use a biosafety cabinet when manipulating aerosols / Autoclave biological waste before disposal", rationale: "A **biosafety cabinet** protects the user and the sample from aerosols, and **autoclaving** is the required method for sterilizing biohazardous waste before disposal." },
+            { id: 34, domain: "Microbiology", question: "Which practices improve **analytical quality control** for routine assays? (Select all correct answers)", answer: "Regular calibration of instruments / Running blanks and control samples / Documenting deviations and corrective actions", rationale: "These three practices are core components of Quality Control, ensuring accuracy, precision, and traceability." },
+            { id: 36, domain: "Microbiology", question: "Briefly list the key steps in performing a **Gram stain** on a bacterial smear.", answer: "Crystal Violet (Primary stain), Iodine (Mordant), Alcohol/Acetone (Decolorizer), Safranin (Counterstain).", rationale: "The four key steps are staining, fixing the dye, decolorizing, and counterstaining to differentiate Gram-positive from Gram-negative bacteria." },
+            { id: 37, domain: "Microbiology", question: "What essential elements should be included in a QC laboratory **SOP for microbial testing** of food samples?", answer: "Sample collection/preparation, method steps, media/reagents, incubation conditions, acceptance criteria, and calculation/reporting.", rationale: "A complete SOP ensures reproducibility and compliance by detailing every part of the analytical process from start to finish." },
+            { id: 39, domain: "Microbiology", question: "Describe a practical method to determine **water activity ($a_w$)** of a food sample in the QC lab.", answer: "Use a water activity meter (or $a_w$ meter). The meter measures the equilibrium relative humidity above the sample after it has reached temperature stability.", rationale: "The $a_w$ meter is the standard, accurate tool. It measures the vapor pressure ratio ($P/P_o$) in the headspace above the food sample." },
+            { id: 40, domain: "Microbiology", question: "Outline the plan for an **incoming raw milk quality control sampling plan** for a small dairy processing plant.", answer: "See Rationale for full plan.", rationale: "**Sampling:** Aseptic proportional sampling (e.g., $N+1$ or $\\sqrt{N}$ frequency based on lot size); **Tests:** Temp, sensory, pH, Alcohol Test, MBRT (Methylene Blue Reduction Time); **Criteria:** Must meet legal standards for fat/SNF, MBRT $> 30$ mins, pH $6.6-6.8$; **Documentation:** Log samples, tests, results, and Chain-of-Custody forms; **Safety:** Sampling personnel wear gloves, goggles, apron, and use sterile tools; **Corrective Action:** Reject the non-conforming lot, immediately notify supplier/manager, and clean/sanitize equipment." }
+        ];
+
+        const tableBody = document.getElementById('table-body');
+        const searchInput = document.getElementById('search-input');
+        const domainFilter = document.getElementById('domain-filter');
+        const noResults = document.getElementById('no-results');
+
+        // Function to render the table rows
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            let resultsCount = 0;
+
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                resultsCount++;
+                const isMath = item.domain === 'Mathematics';
+                
+                // Main Row
+                const mainRow = document.createElement('tr');
+                mainRow.className = 'hover:bg-blue-50 transition duration-100 cursor-pointer';
+                mainRow.onclick = () => toggleRationale(item.id);
+                mainRow.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${item.domain}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 font-medium">${isMath ? formatMath(item.question) : item.question}</td>
+                    <td class="px-4 py-3 text-sm text-green-700 font-semibold">${isMath ? formatMath(item.answer) : item.answer}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                        <button class="text-blue-500 hover:text-blue-700 font-bold text-sm">
+                            Show <span id="icon-${item.id}">&#9660;</span>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(mainRow);
+
+                // Rationale Row (hidden by default)
+                const rationaleRow = document.createElement('tr');
+                rationaleRow.id = `rationale-row-${item.id}`;
+                rationaleRow.className = 'bg-gray-50 border-t border-blue-100';
+                rationaleRow.innerHTML = `
+                    <td colspan="5" class="px-4 text-sm text-gray-700">
+                        <div id="rationale-content-${item.id}" class="rationale-content">
+                            <p class="font-bold text-blue-700 mb-1">Rationale/Solution:</p>
+                            <p class="whitespace-pre-wrap">${isMath ? formatMath(item.rationale) : item.rationale}</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(rationaleRow);
+            });
+            // Re-render MathJax if needed (for LaTeX formatting)
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // Function to toggle the rationale visibility
+        function toggleRationale(id) {
+            const content = document.getElementById(`rationale-content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                icon.innerHTML = '&#9660;'; // Down arrow
+            } else {
+                // Close all others before opening this one (optional, for cleaner view)
+                document.querySelectorAll('.rationale-content.show').forEach(el => {
+                    el.classList.remove('show');
+                    const otherId = el.id.split('-')[2];
+                    document.getElementById(`icon-${otherId}`).innerHTML = '&#9660;';
+                });
+
+                content.classList.add('show');
+                icon.innerHTML = '&#9650;'; // Up arrow
+            }
+        }
+
+        // Helper to format LaTeX math syntax (using MathJax syntax for visualization)
+        function formatMath(text) {
+            return text.replace(/(\$\$[^$]*\$\$)/g, (match) => `<span class="text-lg font-mono">${match}</span>`)
+                       .replace(/(\$[^$]*\$)/g, (match) => `<span class="text-lg font-mono">${match}</span>`);
+        }
+        
+        // Function to populate the domain filter
+        function populateFilter() {
+            const domains = [...new Set(assessmentData.map(item => item.domain))].sort();
+            domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainFilter.appendChild(option);
+            });
+        }
+
+        // Main filtering logic
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedDomain = domainFilter.value;
+
+            const filteredData = assessmentData.filter(item => {
+                const matchesDomain = selectedDomain === 'All' || item.domain === selectedDomain;
+                
+                const matchesSearch = searchTerm === '' ||
+                    item.question.toLowerCase().includes(searchTerm) ||
+                    item.answer.toLowerCase().includes(searchTerm) ||
+                    item.rationale.toLowerCase().includes(searchTerm) ||
+                    item.id.toString().includes(searchTerm);
+
+                return matchesDomain && matchesSearch;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // Initialize listeners and render on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load MathJax for LaTeX/math rendering
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+            script.id = "MathJax-script";
+            document.head.appendChild(script);
+
+            populateFilter();
+            filterData(); // Initial render
+
+            searchInput.addEventListener('input', filterData);
+            domainFilter.addEventListener('change', filterData);
+        });
+    </script>
+</body>
+</html>
