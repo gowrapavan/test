@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Market Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    .meta {
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #020617;
+      color: #e5e7eb;
+      outline: none;
+      min-width: 200px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+      border: 1px solid #1e293b;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .company {
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    .row {
+      font-size: 0.85rem;
+      color: #cbd5f5;
+      margin: 4px 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tag {
+      background: #1e293b;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+    }
+
+    a.apply {
+      display: inline-block;
+      margin-top: 12px;
+      background: #38bdf8;
+      color: #020617;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    a.apply:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌍 Job Market Research</h1>
+  <div class="meta" id="meta"></div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search job / company / tech…" />
+    <select id="countryFilter">
+      <option value="">All Countries</option>
+    </select>
+  </div>
+
+  <div class="grid" id="jobs"></div>
+
+  <script>
+    let allJobs = [];
+
+    fetch('./it-jobs.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('meta').textContent =
+          `${data.report_metadata.profile} • Generated ${data.report_metadata.generated_date}`;
+
+        allJobs = data.jobs;
+        populateCountries(allJobs);
+        render(allJobs);
+      });
+
+    function populateCountries(jobs) {
+      const select = document.getElementById('countryFilter');
+      [...new Set(jobs.map(j => j.country))].forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        select.appendChild(opt);
+      });
+    }
+
+    function render(jobs) {
+      const container = document.getElementById('jobs');
+      container.innerHTML = '';
+
+      jobs.forEach(j => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        card.innerHTML = `
+          <h3>${j.job_title}</h3>
+          <div class="company">${j.employer}</div>
+          <div class="row">📍 ${j.location}, ${j.country}</div>
+          <div class="row">💼 ${j.job_type} • ${j.sector}</div>
+          <div class="row">💰 ${j.pay || 'Not specified'}</div>
+          <div class="row">🕒 ${j.hours_notes}</div>
+          <div class="row">🛂 Visa: ${j.visa || 'Not specified'}</div>
+
+          <div class="tags">
+            <span class="tag">${j.source}</span>
+            <span class="tag">${j.posted}</span>
+          </div>
+
+          <a class="apply" href="${j.apply_link}" target="_blank">Apply</a>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      filter(q, document.getElementById('countryFilter').value);
+    });
+
+    document.getElementById('countryFilter').addEventListener('change', e => {
+      filter(document.getElementById('search').value.toLowerCase(), e.target.value);
+    });
+
+    function filter(query, country) {
+      let filtered = allJobs.filter(j =>
+        (!country || j.country === country) &&
+        JSON.stringify(j).toLowerCase().includes(query)
+      );
+      render(filtered);
+    }
+  </script>
+
+</body>
+</html>
