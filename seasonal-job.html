@@ -2,149 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Seasonal Job Listings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seasonal Jobs – How to Apply</title>
-
-  <meta name="description" content="Seasonal and entry-level international jobs with clear application steps and official links." />
-  <link rel="icon" href="data:,">
 
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
       margin: 0;
-      padding: 24px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .jobs {
-      max-width: 1000px;
-      margin: auto;
-      display: grid;
-      gap: 20px;
-    }
-
-    .job {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
       padding: 20px;
     }
-
-    .job h2 {
-      margin: 0 0 6px;
-      font-size: 1.25rem;
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
-
-    .meta {
-      color: #475569;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
     }
-
-    .section {
-      margin-top: 12px;
+    input, select {
+      padding: 8px;
+      font-size: 14px;
     }
-
-    .section strong {
-      display: block;
-      margin-bottom: 4px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
     }
-
-    .apply {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px dashed #cbd5f5;
+    th, td {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      vertical-align: top;
     }
-
-    .apply a {
-      color: #2563eb;
-      font-weight: 600;
+    th {
+      background: #2c3e50;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+    a {
+      color: #0066cc;
       text-decoration: none;
     }
-
-    .apply a:hover {
+    a:hover {
       text-decoration: underline;
-    }
-
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #64748b;
     }
   </style>
 </head>
 <body>
 
-<h1>🌍 Seasonal & Entry-Level Jobs (How to Apply)</h1>
+<h1>🌍 Seasonal & Entry-Level Jobs</h1>
 
-<div class="jobs" id="jobs"></div>
+<div class="controls">
+  <input id="searchInput" type="text" placeholder="Search job, company, location…" />
+  <select id="countryFilter">
+    <option value="">All Countries</option>
+  </select>
+</div>
 
-<footer>
-  Updated Jan 2026 • Apply only via official sources
-</footer>
+<table id="jobsTable">
+  <thead>
+    <tr>
+      <th>Country</th>
+      <th>Location</th>
+      <th>Job Title</th>
+      <th>Sector</th>
+      <th>Employer</th>
+      <th>Job Type</th>
+      <th>Pay</th>
+      <th>Hours / Notes</th>
+      <th>Accommodation</th>
+      <th>Visa</th>
+      <th>How to Apply</th>
+      <th>Apply Link</th>
+      <th>Posted</th>
+      <th>Source</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
-fetch('./seasonal-job.json')
+let jobs = [];
+
+const tbody = document.querySelector("#jobsTable tbody");
+const searchInput = document.getElementById("searchInput");
+const countryFilter = document.getElementById("countryFilter");
+
+/* Load JSON */
+fetch("seasonal-job.json")
   .then(res => res.json())
   .then(data => {
-    const container = document.getElementById('jobs');
-
-    container.innerHTML = data.map(job => `
-      <article class="job">
-        <h2>${job.job_title}</h2>
-
-        <div class="meta">
-          ${job.country} • ${job.region_city_rural_area} • ${job.job_type}
-        </div>
-
-        <div class="section">
-          <strong>Employer</strong>
-          ${job.employer_company_name}
-        </div>
-
-        <div class="section">
-          <strong>Industry</strong>
-          ${job.industry_sector}
-        </div>
-
-        <div class="section">
-          <strong>Pay</strong>
-          ${job.pay_rate_salary}
-        </div>
-
-        <div class="section">
-          <strong>Experience Required</strong>
-          ${job.experience_required}
-        </div>
-
-        <div class="section">
-          <strong>Visa / Eligibility</strong>
-          ${job.visa_international_applicant_eligibility}
-        </div>
-
-        <div class="apply">
-          <strong>📝 How to Apply</strong>
-          <p>${job.how_to_apply}</p>
-          <a href="https://${job.application_link_or_contact_details}" 
-             target="_blank" rel="noopener">
-            Apply here →
-          </a>
-        </div>
-      </article>
-    `).join('');
+    jobs = data;
+    populateCountries();
+    renderTable(jobs);
   })
-  .catch(err => {
-    document.getElementById('jobs').innerHTML =
-      '<p>Unable to load jobs at the moment.</p>';
-    console.error(err);
+  .catch(err => console.error("Failed to load JSON:", err));
+
+function renderTable(data) {
+  tbody.innerHTML = "";
+  data.forEach(job => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${job.country}</td>
+      <td>${job.region_city_rural_area}</td>
+      <td>${job.job_title}</td>
+      <td>${job.industry_sector}</td>
+      <td>${job.employer_company_name}</td>
+      <td>${job.job_type}</td>
+      <td>${job.pay_rate_salary}</td>
+      <td>${job.working_hours_shift_details}</td>
+      <td>${job.accommodation_provided}</td>
+      <td>${job.visa_international_applicant_eligibility}</td>
+      <td>${job.how_to_apply}</td>
+      <td>
+        <a href="https://${job.application_link_or_contact_details}" target="_blank">
+          Open
+        </a>
+      </td>
+      <td>${job.job_posting_date}</td>
+      <td>${job.source}</td>
+    `;
+    tbody.appendChild(tr);
   });
+}
+
+function populateCountries() {
+  const countries = [...new Set(jobs.map(j => j.country))];
+  countries.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    countryFilter.appendChild(opt);
+  });
+}
+
+function filterJobs() {
+  const q = searchInput.value.toLowerCase();
+  const c = countryFilter.value;
+
+  const filtered = jobs.filter(job => {
+    const text =
+      job.country +
+      job.region_city_rural_area +
+      job.job_title +
+      job.industry_sector +
+      job.employer_company_name +
+      job.how_to_apply;
+
+    return text.toLowerCase().includes(q) && (c === "" || job.country === c);
+  });
+
+  renderTable(filtered);
+}
+
+searchInput.addEventListener("input", filterJobs);
+countryFilter.addEventListener("change", filterJobs);
 </script>
 
 </body>
