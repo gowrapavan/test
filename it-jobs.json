@@ -1,14 +1,18 @@
-[
-  [
-    {
+{
   "report_metadata": {
     "report_type": "Job Market Research",
     "profile": "Junior Web Developer (Entry-Level, No Experience)",
-    "target_countries":,
+    "target_countries": [
+      "Canada",
+      "Australia",
+      "New Zealand",
+      "United Kingdom",
+      "Ireland",
+      "Greenland"
+    ],
     "generated_date": "2026-01-14"
   },
-  "jobs":"
-    },
+  "jobs": [
     {
       "country": "United Kingdom",
       "location": "London / Remote",
@@ -23,7 +27,7 @@
       "how_to_apply": "Apply via Revolut Careers portal",
       "apply_link": "https://www.revolut.com/en-IN/careers/position/rev-celerator-graduate-programme-2026-software-engineer-frontend-e8096b08-2f3b-4fae-ba09-ae2448571af6/",
       "posted": "Jan 2026 (Ongoing)",
-      "source": "Company Website [3, 4, 5]"
+      "source": "Company Website"
     },
     {
       "country": "Canada",
@@ -39,7 +43,7 @@
       "how_to_apply": "Apply via Workable",
       "apply_link": "https://apply.workable.com/fiq/j/5A609D99EF/apply/",
       "posted": "Jan 2026",
-      "source": "ZipRecruiter [6, 7, 8, 5]"
+      "source": "ZipRecruiter"
     },
     {
       "country": "Canada",
